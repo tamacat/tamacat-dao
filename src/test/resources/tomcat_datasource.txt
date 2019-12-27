@@ -1,0 +1,19 @@
+server.xml
+
+...
+  <GlobalNamingResources>
+    <Resource name="jdbc/testdb" auth="Container"
+              type="javax.sql.DataSource"
+              username="scott"  password="tiger"
+              driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/test?useCompression=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;dumpQueriesOnException=true" />
+
+  </GlobalNamingResources>
+...
+
+
+
+${catalina_home}/lib/
+  log4j-1.2.17.jar
+  mysql-connector-java-5.1.21.jar
+
