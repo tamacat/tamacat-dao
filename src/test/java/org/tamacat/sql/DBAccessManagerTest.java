@@ -4,10 +4,6 @@
  */
 package org.tamacat.sql;
 
-import static org.junit.Assert.*;
-
-import java.sql.Connection;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,13 +23,13 @@ public class DBAccessManagerTest {
     }
 
     @Test
-    public void testGetConnection() {
-        Connection con = dbm.getConnection();
-        assertNotNull(con);
-
-        Connection con2 = dbm.getConnection();
-        assertNotNull(con);
-        assertEquals(con, con2);
+    public void testGetConnection() throws Exception {
+//        Connection con = dbm.getConnection();
+//        assertNotNull(con);
+//
+//        Connection con2 = dbm.getConnection();
+//        assertNotNull(con);
+//        assertEquals(con, con2);
 
         dbm.executeQuery("select * from users");
     }
