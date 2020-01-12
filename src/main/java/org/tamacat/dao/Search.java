@@ -106,6 +106,11 @@ public class Search {
 	public void setStart(int start) {
 		this.start = start;
 	}
+	
+	public Search start(int start) {
+		this.start = start;
+		return this;
+	}
 
 	public int getMax() {
 		return max;
@@ -113,5 +118,10 @@ public class Search {
 
 	public void setMax(int max) {
 		this.max = max;
+	}
+	
+	public Search max(int max) {
+		this.max = max;
+		return this;
 	}
 }
