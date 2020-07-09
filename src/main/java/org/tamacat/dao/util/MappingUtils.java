@@ -4,6 +4,7 @@
  */
 package org.tamacat.dao.util;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -53,7 +54,8 @@ public class MappingUtils {
 		case FLOAT:
 			String fval = rs.getString(index);
 			if (StringUtils.isNotEmpty(fval)) {
-				return StringUtils.parse(fval, 0d);
+				return new BigDecimal(fval);
+				//return StringUtils.parse(fval, 0d);
 			} else {
 				return fval;
 			}
