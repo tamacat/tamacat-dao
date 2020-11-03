@@ -3,7 +3,6 @@ package org.tamacat.dao.impl;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.tamacat.dao.impl.OracleSearch;
 
 public class OracleSearchTest {
 

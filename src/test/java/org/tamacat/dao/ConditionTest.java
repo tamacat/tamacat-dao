@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, TamaCat.org
+ * Copyright 2007 tamacat.org
  * All rights reserved.
  */
 package org.tamacat.dao;
@@ -7,7 +7,6 @@ package org.tamacat.dao;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.tamacat.dao.Condition;
 import org.tamacat.sql.SQLParser;
 
 public class ConditionTest {

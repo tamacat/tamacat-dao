@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, TamaCat.org
+ * Copyright 2009 tamacat.org
  * All rights reserved.
  */
 package org.tamacat.dao;
@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.Dao;
 import org.tamacat.dao.impl.LoggingDaoExecuterHandler;
 import org.tamacat.dao.impl.LoggingDaoTransactionHandler;
 import org.tamacat.sql.DBAccessManager;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 TamaCat.org
+ * Copyright 2007 tamacat.org
  * All rights reserved.
  */
 package org.tamacat.sql;
@@ -13,7 +13,6 @@ import org.tamacat.dao.meta.DefaultTable;
 import org.tamacat.dao.meta.Column;
 import org.tamacat.dao.meta.Columns;
 import org.tamacat.dao.meta.DataType;
-import org.tamacat.sql.SQLParser;
 
 import junit.framework.TestCase;
 

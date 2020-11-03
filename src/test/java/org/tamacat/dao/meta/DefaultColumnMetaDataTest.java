@@ -8,7 +8,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.meta.DataType;
 import org.tamacat.util.CloneUtils;
 
 public class DefaultColumnMetaDataTest {

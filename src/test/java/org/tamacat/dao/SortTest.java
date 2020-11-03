@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, TamaCat.org
+ * Copyright 2008 tamacat.org
  * All rights reserved.
  */
 package org.tamacat.dao;
@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.Sort;
 import org.tamacat.dao.test.User;
 
 public class SortTest {

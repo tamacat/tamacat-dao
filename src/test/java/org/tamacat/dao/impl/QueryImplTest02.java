@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.impl.QueryImpl;
 import org.tamacat.dao.test.FileData;
 
 public class QueryImplTest02 {

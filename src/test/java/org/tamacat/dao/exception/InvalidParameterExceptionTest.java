@@ -3,7 +3,6 @@ package org.tamacat.dao.exception;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.tamacat.dao.exception.InvalidParameterException;
 
 public class InvalidParameterExceptionTest {
 

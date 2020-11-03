@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 2008, TamaCat.org
+ * Copyright 2008 tamacat.org
  * All rights reserved.
  */
 package org.tamacat.pool.impl;
-
-import org.tamacat.pool.impl.StackObjectPool;
 
 public class Pooling_test {
 

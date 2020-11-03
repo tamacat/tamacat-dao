@@ -1,13 +1,11 @@
 /*
- * Copyright (c) 2007 TamaCat.org
+ * Copyright 2007 tamacat.org
  * All rights reserved.
  */
 package org.tamacat.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.Condition;
-import org.tamacat.dao.Search;
 import org.tamacat.dao.Search.ValueConvertFilter;
 import org.tamacat.dao.meta.DefaultColumn;
 import org.tamacat.dao.meta.DefaultTable;

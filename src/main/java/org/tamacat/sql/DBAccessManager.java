@@ -16,7 +16,6 @@ import java.util.List;
 import org.tamacat.dao.exception.DaoException;
 import org.tamacat.log.Log;
 import org.tamacat.log.LogFactory;
-import org.tamacat.sql.LifecycleSupport;
 
 public final class DBAccessManager implements LifecycleSupport {
 

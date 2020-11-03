@@ -13,4 +13,10 @@ public class ColumnsTest {
 		assertEquals(DataType.STRING, Columns.create("create_time").getType());
 		assertEquals(DataType.STRING, Columns.create("update_date").getType());	
 	}
+	
+	@Test
+	public void testFunction() {
+		Column c1 = Columns.create("max").type(DataType.FUNCTION).functionName("max");
+		assertEquals("max", c1.getFunctionName());
+	}
 }

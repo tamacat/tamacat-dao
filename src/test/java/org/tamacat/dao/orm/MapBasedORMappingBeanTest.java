@@ -12,7 +12,6 @@ import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.orm.MapBasedORMappingBean;
 import org.tamacat.dao.test.Data;
 import org.tamacat.dao.test.User;
 

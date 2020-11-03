@@ -3,7 +3,6 @@ package org.tamacat.dao.meta;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.tamacat.dao.meta.ColumnDefine;
 
 public class ColumnDefineTest {
 

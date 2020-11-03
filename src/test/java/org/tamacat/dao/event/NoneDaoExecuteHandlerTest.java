@@ -2,7 +2,6 @@ package org.tamacat.dao.event;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tamacat.dao.event.DaoEvent;
 import org.tamacat.dao.impl.NoneDaoExecuteHandler;
 
 public class NoneDaoExecuteHandlerTest {
