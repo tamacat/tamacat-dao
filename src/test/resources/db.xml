@@ -57,4 +57,22 @@
       <value>java:comp/env/jdbc/test</value>
     </property>
   </bean>
+  
+  <bean id="db1" class="org.tamacat.sql.DriverManagerJdbcConfig" singleton="true"> 
+    <property name="driverClass">
+      <value>org.tamacat.mock.sql.MockDriver</value>
+    </property>
+    <property name="url">
+      <value>jdbc:mock://localhost/testdb1</value>
+    </property>
+  </bean>
+  
+  <bean id="db2" class="org.tamacat.sql.DriverManagerJdbcConfig" singleton="true"> 
+    <property name="driverClass">
+      <value>org.tamacat.mock.sql.MockDriver</value>
+    </property>
+    <property name="url">
+      <value>jdbc:mock://localhost/testdb2</value>
+    </property>
+  </bean>
 </beans>
