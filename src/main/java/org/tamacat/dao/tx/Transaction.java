@@ -26,6 +26,7 @@ public class Transaction {
 	public void begin() {
 		for (String name : names) {
 			DBAccessManager db = DBAccessManager.getInstance(name);
+			db.setAutoCommit(false);
 			dbm.add(db);
 		}
 	}
