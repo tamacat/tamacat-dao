@@ -4,7 +4,9 @@
  */
 package org.tamacat.dao;
 
-public enum Condition {
+import org.tamacat.dao.Search.Conditions;
+
+public enum Condition implements Conditions {
 
 	LIKE_HEAD(" like ", "#{value1}%"),
 	LIKE_PART(" like ", "%#{value1}%"),
