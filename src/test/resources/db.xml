@@ -27,6 +27,9 @@
     <property name="activateSQL">
       <value>SELECT 1</value>
     </property>
+    <property name="activateResult">
+      <value>1</value>
+    </property>
   </bean>
   
   <bean id="javadb" class="org.tamacat.sql.DriverManagerJdbcConfig" singleton="true"> 
