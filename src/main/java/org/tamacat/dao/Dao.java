@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.tamacat.dao.Search.Conditions;
 import org.tamacat.dao.event.DaoEvent;
 import org.tamacat.dao.event.DaoExecuteHandler;
 import org.tamacat.dao.event.DaoTransactionHandler;
@@ -134,7 +135,7 @@ public class Dao<T extends ORMappingSupport<T>> implements AutoCloseable {
 		return dbm;
 	}
 
-	public String param(Column column, Condition condition, String... values) {
+	public String param(Column column, Conditions condition, String... values) {
 		return parser.value(column, condition, values);
 	}
 

@@ -1,7 +1,7 @@
 Implementation-Title: tamacat-dao
-Implementation-Version: 1.5-20230410
+Implementation-Version: 1.6.1-20260324
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.tamacat.dao
 Bundle-Name: tamacat-dao
 Bundle-Vendor: TAMACAT.ORG
-Bundle-Version: 1.5
+Bundle-Version: 1.6.1

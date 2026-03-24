@@ -15,6 +15,7 @@ import org.tamacat.log.Log;
 import org.tamacat.log.LogFactory;
 import org.tamacat.pool.ObjectActivateException;
 import org.tamacat.util.ClassUtils;
+import org.tamacat.util.StringUtils;
 
 public class DriverManagerJdbcConfig implements JdbcConfig {
 
@@ -29,6 +30,7 @@ public class DriverManagerJdbcConfig implements JdbcConfig {
 	private int maxPools;
 
 	private String activateSQL;
+	private String activateResult;
 	private Class<?> driver;
 
 	@Override
@@ -53,6 +55,14 @@ public class DriverManagerJdbcConfig implements JdbcConfig {
 					ResultSet rs = stmt.executeQuery(activateSQL);
 					if (LOG.isDebugEnabled()) {
 						LOG.debug(activateSQL);
+					}
+					if (StringUtils.isNotEmpty(activateResult)) {
+						if (rs.next()) {
+							String result = rs.getString(1);
+							if (activateResult.equals(result) == false) {
+								throw new SQLException("activate result:" + result);
+							}
+						}
 					}
 					DBUtils.close(rs);
 				}
@@ -131,5 +141,14 @@ public class DriverManagerJdbcConfig implements JdbcConfig {
 
 	public void setActivateSQL(String activateSQL) {
 		this.activateSQL = activateSQL;
+	}
+	
+	/**
+	 * Set a string to match the result of the connection pooling activation SQL.
+	 * @since 1.6.1-20260324
+	 * @param activateResult
+	 */
+	public void setActivateResult(String activateResult) {
+		this.activateResult = activateResult;
 	}
 }

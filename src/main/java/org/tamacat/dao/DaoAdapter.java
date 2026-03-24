@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.List;
 
+import org.tamacat.dao.Search.Conditions;
 import org.tamacat.dao.exception.DaoException;
 import org.tamacat.dao.impl.LoggingDaoExecuterHandler;
 import org.tamacat.dao.impl.LoggingDaoTransactionHandler;
@@ -116,7 +117,7 @@ public class DaoAdapter<T extends ORMappingSupport<T>> implements AutoCloseable 
 		return delegate.getDBAccessManager();
 	}
 
-	public String param(Column column, Condition condition, String... values) {
+	public String param(Column column, Conditions condition, String... values) {
 		return delegate.param(column, condition, values);
 	}
 
