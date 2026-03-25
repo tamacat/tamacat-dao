@@ -17,12 +17,14 @@ import org.tamacat.dao.exception.DaoException;
 import org.tamacat.log.Log;
 import org.tamacat.log.LogFactory;
 import org.tamacat.pool.ObjectActivateException;
+import org.tamacat.util.StringUtils;
 
 public class DataSourceJdbcConfig implements JdbcConfig {
 
 	static final Log LOG = LogFactory.getLog(DataSourceJdbcConfig.class);
 
 	private String activateSQL;
+	private String activateResult;
 	private InitialContext ic;
 	private String dataSourceName;
 	private int maxPools;
@@ -49,6 +51,14 @@ public class DataSourceJdbcConfig implements JdbcConfig {
 					ResultSet rs = stmt.executeQuery(activateSQL);
 					if (LOG.isDebugEnabled()) {
 						LOG.debug(activateSQL);
+					}
+					if (StringUtils.isNotEmpty(activateResult)) {
+						if (rs.next()) {
+							String result = rs.getString(1);
+							if (activateResult.equals(result) == false) {
+								throw new SQLException("activate result:" + result);
+							}
+						}
 					}
 					DBUtils.close(rs);
 				}
@@ -107,5 +117,14 @@ public class DataSourceJdbcConfig implements JdbcConfig {
 	
 	public void setInitPools(int initPools) {
 		this.initPools = initPools;
+	}
+	
+	/**
+	 * Set a string to match the result of the connection pooling activation SQL.
+	 * @since 1.5.1-20260325
+	 * @param activateResult
+	 */
+	public void setActivateResult(String activateResult) {
+		this.activateResult = activateResult;
 	}
 }
