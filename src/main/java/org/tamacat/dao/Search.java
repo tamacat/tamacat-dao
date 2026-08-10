@@ -4,7 +4,11 @@
  */
 package org.tamacat.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.tamacat.dao.meta.Column;
+import org.tamacat.sql.BindSqlBuilder;
 import org.tamacat.sql.SQLParser;
 
 /**
@@ -21,47 +25,78 @@ public class Search {
 	}
 
 	protected StringBuilder search = new StringBuilder();
+	/**
+	 * Bind-path counterpart of {@link #search} - the {@code ?}-bearing predicate
+	 * text, kept in sync with {@link #search} and {@link #bindValues} by the
+	 * private {@code append(...)} method.
+	 * @since 2.0
+	 */
+	protected StringBuilder bindSearch = new StringBuilder();
+	/**
+	 * The ordered bind values corresponding to {@link #bindSearch}'s {@code ?}
+	 * placeholders.
+	 * @since 2.0
+	 */
+	protected List<BindValue> bindValues = new ArrayList<>();
 	protected ValueConvertFilter valueConvertFilter;
 
 	protected int start;
 	protected int max;
 	protected boolean unique;
-	
+
 	SQLParser parser;
+	BindSqlBuilder builder;
 
 	public Search() {
 		parser = new SQLParser(new DefaultValueConvertFilter());
+		builder = new BindSqlBuilder();
 	}
 
 	public Search(ValueConvertFilter valueConvertFilter) {
 		parser = new SQLParser(valueConvertFilter);
+		builder = new BindSqlBuilder();
+	}
+
+	/**
+	 * The single entry point that keeps {@link #search}, {@link #bindSearch}, and
+	 * {@link #bindValues} synchronized. {@code literalSql} and {@code bindParam}
+	 * must be evaluated by the caller as arguments to this method so that, if
+	 * either throws, none of the three states are changed (business-rules.md
+	 * BR-1).
+	 */
+	private void append(String connector, String literalSql, Param bindParam) {
+		if (search.length() > 0) {
+			search.append(" ").append(connector).append(" ");
+			bindSearch.append(" ").append(connector).append(" ");
+		}
+		search.append(literalSql);
+		bindSearch.append(bindParam.getSql());
+		bindValues.addAll(bindParam.getValues());
 	}
 
 	public Search and(Column column, Conditions condition, String... values) {
-		if (search.length() > 0)
-			search.append(" and ");
-		search.append(parser.value(column, condition, values));
+		append("and", parser.value(column, condition, values),
+				builder.value(column, condition, values));
 		return this;
 	}
 
 	public Search or(Column column, Conditions condition, String... values) {
-		if (search.length() > 0)
-			search.append(" or ");
-		search.append(parser.value(column, condition, values));
+		append("or", parser.value(column, condition, values),
+				builder.value(column, condition, values));
 		return this;
 	}
 
 	public Search and(Search append) {
-		if (search.length() > 0)
-			search.append(" and ");
-		search.append("(" + append.getSearchString() + ")");
+		Param p = append.getSearchParam();
+		append("and", "(" + append.getSearchString() + ")",
+				Param.of("(" + p.getSql() + ")", p.getValues()));
 		return this;
 	}
 
 	public Search or(Search append) {
-		if (search.length() > 0)
-			search.append(" or ");
-		search.append("(" + append.getSearchString() + ")");
+		Param p = append.getSearchParam();
+		append("or", "(" + append.getSearchString() + ")",
+				Param.of("(" + p.getSql() + ")", p.getValues()));
 		return this;
 	}
 
@@ -85,8 +120,25 @@ public class Search {
 		return unique;
 	}
 	
+	/**
+	 * @deprecated use {@link #getSearchParam()}. Return value unchanged.
+	 */
+	@Deprecated
 	public String getSearchString() {
 		return search.toString();
+	}
+
+	/**
+	 * Bind-path equivalent of {@link #getSearchString()} - the {@code ?}-bearing
+	 * predicate text paired with its ordered bind values.
+	 *
+	 * <p>{@code public} rather than package-private (unlike {@link #parser} /
+	 * {@link #builder}) because {@link org.tamacat.dao.impl.QueryImpl}, which
+	 * calls this, is in a different package.
+	 * @since 2.0
+	 */
+	public Param getSearchParam() {
+		return Param.of(bindSearch.toString(), bindValues);
 	}
 
 	/**

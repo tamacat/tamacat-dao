@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import org.tamacat.dao.Condition;
 import org.tamacat.dao.DaoAdapter;
+import org.tamacat.dao.PreparedSql;
 import org.tamacat.dao.Query;
 import org.tamacat.dao.Search;
 import org.tamacat.dao.Sort;
@@ -19,7 +20,7 @@ public class UserDao extends DaoAdapter<User> {
     public User search(User data) {
         Query<User> query = createQuery()
             .select(User.TABLE.getColumns())
-            .where(param(User.USER_ID, Condition.EQUAL, data.getValue(User.USER_ID)));
+            .where(prepare(User.USER_ID, Condition.EQUAL, data.getValue(User.USER_ID)));
         return super.search(query);
     }
 
@@ -51,7 +52,36 @@ public class UserDao extends DaoAdapter<User> {
         	.addUpdateColumn(User.USER_ID);
         return query.getDeleteSQL(data);
     }
-    
+
+    // Bind-path overrides (U3 write-path, business-rules.md R-29 migration).
+    // Mirror the getInsertSQL/getUpdateSQL/getDeleteSQL delegation pattern above,
+    // delegating to QueryImpl's bind-aware methods so create()/update()/delete()
+    // (routed through DaoAdapter.executeUpdate(PreparedSql)) execute via bind
+    // variables instead of falling back to PreparedSql.ofLiteral(getInsertSQL(data)).
+    @Override
+    protected PreparedSql getInsertPreparedSql(User data) {
+        Query<User> query = createQuery()
+        	.addUpdateColumns(User.TABLE.columns());
+        return query.getInsertPreparedSql(data);
+    }
+
+    @Override
+    protected PreparedSql getUpdatePreparedSql(User data) {
+        Query<User> query = createQuery()
+        	.addUpdateColumns(User.TABLE.columns())
+        	.where(prepare(User.USER_ID, Condition.EQUAL, data.val(User.USER_ID))
+        );
+        return query.getUpdatePreparedSql(data);
+    }
+
+    @Override
+    protected PreparedSql getDeletePreparedSql(User data) {
+        Query<User> query = createQuery()
+        	.addUpdateColumn(User.USER_ID);
+        return query.getDeletePreparedSql(data);
+    }
+
+
     public int createTable() {
     	return executeUpdate(
     		"CREATE TABLE users (user_id varchar(32),"

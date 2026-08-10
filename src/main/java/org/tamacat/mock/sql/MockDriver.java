@@ -17,7 +17,9 @@ public class MockDriver implements Driver {
 
 	private Connection connection;
     private Logger logger;
-    
+
+    private static MockDriver instance;
+
     static {
         try {
             DriverManager.registerDriver(new MockDriver());
@@ -25,9 +27,19 @@ public class MockDriver implements Driver {
             e.printStackTrace();
         }
     }
-    
+
     public MockDriver() {
         this.connection = new MockConnection();
+        instance = this;
+    }
+
+    /**
+     * @return the {@code MockDriver} instance registered with {@link DriverManager}
+     *         by the static initializer
+     * @since 2.0
+     */
+    public static MockDriver getInstance() {
+        return instance;
     }
 
     public void setConnection(Connection connection) {

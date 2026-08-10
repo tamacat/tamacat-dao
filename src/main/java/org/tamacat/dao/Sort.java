@@ -6,6 +6,7 @@ package org.tamacat.dao;
 
 import org.tamacat.dao.meta.Column;
 import org.tamacat.dao.util.MappingUtils;
+import org.tamacat.sql.IdentifierRules;
 
 /**
  * Sort condition for Database access.
@@ -54,7 +55,7 @@ public class Sort {
         		sort.append(MappingUtils.getColumnName(col) + " " + o.toString());
         	}
         } else {
-        	sort.append(k.toString() + " " + o.toString());
+        	sort.append(IdentifierRules.validate(k.toString()) + " " + o.toString());
         }
         return this;
     }

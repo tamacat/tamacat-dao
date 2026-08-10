@@ -1,0 +1,9 @@
+[
+  {
+    "uuid": "019fcc6b-bc9d-75d2-a1c9-d9af44eb559f",
+    "slug": "sql-injection-preparedst",
+    "dirName": "260804-sql-injection-preparedst",
+    "scope": "sql-parameterization",
+    "status": "complete"
+  }
+]

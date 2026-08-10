@@ -10,7 +10,11 @@ public class OracleSearch extends Search {
 	
     static class OracleValueConvertFilter implements Search.ValueConvertFilter {
         public String convertValue(String value) {
-            return value.replace("'", "''");
+            if (value != null) {
+                return value.replace("'", "''");
+            } else {
+                return value;
+            }
         }
     }
 

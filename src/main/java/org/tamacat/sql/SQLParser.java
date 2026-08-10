@@ -4,9 +4,6 @@
  */
 package org.tamacat.sql;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.tamacat.dao.Search;
 import org.tamacat.dao.Search.Conditions;
 import org.tamacat.dao.Search.ValueConvertFilter;
@@ -14,7 +11,6 @@ import org.tamacat.dao.exception.InvalidParameterException;
 import org.tamacat.dao.meta.Column;
 import org.tamacat.dao.meta.DataType;
 import org.tamacat.dao.util.MappingUtils;
-import org.tamacat.util.StringUtils;
 
 public class SQLParser {
 
@@ -42,7 +38,7 @@ public class SQLParser {
 		if (values != null) {
 			if (values.length == 1) {
 				String value = values[0];
-				if (StringUtils.isEmpty(value) && column.isNotNull()) {
+				if (ValueRules.isRequiredButEmpty(column, value)) {
 					throw new InvalidParameterException("Column [" + colName + "] is required.");
 				}
 				if ((column.getType() == DataType.STRING || column.getType() == DataType.BOOLEAN) // for LIKE 'String
@@ -91,20 +87,16 @@ public class SQLParser {
 				return "'" + parseValue + "'";
 			}
 		} else if (column.getType() == DataType.NUMERIC || column.getType() == DataType.FLOAT) {
-			if (StringUtils.isEmpty(value)) {
+			if (ValueRules.isNullValue(column, value)) {
 				return NULL_VALUE.toLowerCase();
 			} else {
-				if (isNumeric(value)) {
-					return parseValue;
-				} else {
-					//return NULL_VALUE.toLowerCase();
-					throw new InvalidParameterException("value is not numeric.");
-				}
+				ValueRules.validate(column, value);
+				return parseValue;
 			}
 		} else if (column.getType() == DataType.TIME || column.getType() == DataType.DATE) {
-			if (StringUtils.isEmpty(value) || value.equalsIgnoreCase(NULL_VALUE)) {
+			if (ValueRules.isNullValue(column, value)) {
 				return NULL_VALUE.toLowerCase();
-			} else if (value.equalsIgnoreCase("current_timestamp")) { //TODO
+			} else if (ValueRules.isSqlFunction(column, value)) { //TODO
 				return parseValue;
 			} else {
 				return "'" + parseValue + "'";
@@ -115,37 +107,25 @@ public class SQLParser {
 			return parseValue;
 		}
 	}
-	
+
 	protected String parseLikeStringValue(Conditions condition, Column column, String value) {
-		if (value == null) {
-			//like null -> like ''
-			value = "";
+		LikeEscape le = ValueRules.escapeLike(condition, column, value);
+		if (!le.hasEscape()) {
+			return parseValue(column, le.getBoundValue());
 		}
-		if (value.indexOf('%') >= 0 || value.indexOf('_') >= 0) {
-			char[] esc = new char[] { '$', '#', '~', '!', '^' };
-			for (char e : esc) {
-				if (value.indexOf(e) == -1) {
-					String val = value.replace("%", e + "%").replace("_", e + "_");
-					val = condition.getReplaceHolder().replace(VALUE1, val);
-					String parseValue = (valueConvertFilter == null) ? val : valueConvertFilter.convertValue(val);
-					if (column.getType() == DataType.STRING || column.getType() == DataType.BOOLEAN) {
-						parseValue = "'" + parseValue + "'";
-					}
-					return parseValue + ESCAPE.replace('?', e);
-				}
-			}
+		String parsed = (valueConvertFilter == null)
+				? le.getBoundValue() : valueConvertFilter.convertValue(le.getBoundValue());
+		if (column.getType() == DataType.STRING || column.getType() == DataType.BOOLEAN) {
+			parsed = "'" + parsed + "'";
 		}
-		return parseValue(column, condition.getReplaceHolder().replace(VALUE1, value));
+		return parsed + ESCAPE.replace('?', le.getEscapeChar());
 	}
-	
+
 	/**
 	 * @since 1.4-20180217
 	 * @param value
 	 */
 	protected boolean isNumeric(String value) {
-		if (StringUtils.isEmpty(value)) return false;
-	    Pattern p = Pattern.compile("^\\-?[0-9]*\\.?[0-9]+$");
-	    Matcher m = p.matcher(value);
-	    return m.find();
+		return ValueRules.isNumeric(value);
 	}
 }

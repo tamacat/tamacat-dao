@@ -8,3 +8,17 @@ target/
 .svn/
 
 !gitkeep
+
+# AI-DLC: per-user / per-clone local state (not shared across clones)
+.claude/settings.local.json
+aidlc/active-space
+aidlc/spaces/*/intents/active-intent
+aidlc/.aidlc-clone-id
+aidlc/.aidlc-sessions/
+aidlc/spaces/*/intents/*/runtime-graph.json
+aidlc/spaces/*/intents/*/.aidlc-*
+
+# AI-DLC: audit shards are named after the local machine hostname and can
+# contain machine-local paths (e.g. temp-directory paths under the OS user
+# profile) logged from tool output - excluded to avoid leaking that info.
+aidlc/spaces/*/intents/*/audit/

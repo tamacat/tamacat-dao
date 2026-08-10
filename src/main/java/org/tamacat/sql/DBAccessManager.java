@@ -4,6 +4,7 @@
  */
 package org.tamacat.sql;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.tamacat.dao.PreparedSql;
 import org.tamacat.dao.exception.DaoException;
 import org.tamacat.log.Log;
 import org.tamacat.log.LogFactory;
@@ -33,6 +35,7 @@ public final class DBAccessManager implements LifecycleSupport {
 	}
 
 	protected ThreadLocal<List<String>> executedQuery = new ThreadLocal<>();
+	protected ThreadLocal<List<ExecutedStatement>> executedStatements = new ThreadLocal<>();
 	private ThreadLocal<Boolean> running = new ThreadLocal<>();
 	private ThreadLocal<Connection> con = new ThreadLocal<>();
 	private ThreadLocal<Statement> stmt = new ThreadLocal<>();
@@ -110,6 +113,101 @@ public final class DBAccessManager implements LifecycleSupport {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		}
+	}
+
+	/**
+	 * Executes {@code sql}, applying its bind values, and passes the resulting
+	 * {@link ResultSet} to {@code handler}. The {@code PreparedStatement} and
+	 * {@code ResultSet} are both closed (via try-with-resources) before this method
+	 * returns - {@code handler} must not retain or return the {@code ResultSet}.
+	 * @since 2.0
+	 */
+	public <R> R executeQuery(PreparedSql sql, ResultSetHandler<R> handler) {
+		record(sql);
+		checkBindable(sql);
+		try (PreparedStatement ps = getConnection().prepareStatement(sql.getSql())) {
+			PreparedStatementBinder.bind(ps, sql.getValues());
+			try (ResultSet rs = ps.executeQuery()) {
+				return handler.handle(rs);
+			}
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		}
+	}
+
+	/**
+	 * Executes {@code sql} as an update, applying its bind values.
+	 * @since 2.0
+	 */
+	public int executeUpdate(PreparedSql sql) {
+		record(sql);
+		checkBindable(sql);
+		try (PreparedStatement ps = getConnection().prepareStatement(sql.getSql())) {
+			PreparedStatementBinder.bind(ps, sql.getValues());
+			return ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		}
+	}
+
+	/**
+	 * Executes {@code sql} as an update, applying its bind values, then binds
+	 * {@code in} as a binary stream at {@code blobIndex} (1-based) - overwriting the
+	 * {@code setNull} that {@link PreparedStatementBinder#bind} applied for the
+	 * {@code DataType.OBJECT} placeholder at that position. The overwrite relies on the
+	 * JDBC contract that the last {@code set*} call at a given parameter position wins
+	 * (business-rules.md BR-10).
+	 * @param sql the checked {@link PreparedSql} (its OBJECT placeholder already carries
+	 *        a NULL {@link org.tamacat.dao.BindValue})
+	 * @param blobIndex the 1-based bind position of the BLOB column, typically obtained
+	 *        via {@link PreparedSql#getBindIndexOf(org.tamacat.dao.meta.DataType, int)}
+	 * @param in the binary content to bind
+	 * @since 2.0
+	 */
+	public int executeUpdate(PreparedSql sql, int blobIndex, InputStream in) {
+		record(sql);
+		checkBindable(sql);
+		try (PreparedStatement ps = getConnection().prepareStatement(sql.getSql())) {
+			PreparedStatementBinder.bind(ps, sql.getValues());
+			ps.setBinaryStream(blobIndex, in);
+			return ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		}
+	}
+
+	private void checkBindable(PreparedSql sql) {
+		if (!sql.hasUnboundPlaceholders()) {
+			return;
+		}
+		if (sql.getPlaceholderCount() < 0) {
+			throw new DaoException(
+					"Cannot verify placeholders: unterminated quote in SQL text. sql=[" + sql.getSql() + "]");
+		}
+		throw new DaoException(
+				"Unbound placeholder(s): " + sql.getPlaceholderCount() + " placeholder(s) but "
+				+ sql.getValues().size() + " value(s). For a BLOB update, use "
+				+ "Dao#executeUpdate(String,int,InputStream) or override getUpdatePreparedSql(T). "
+				+ "sql=[" + sql.getSql() + "]");
+	}
+
+	private void record(PreparedSql sql) {
+		getExecutedQuery().add(sql.getSql());
+		getExecutedStatements().add(new ExecutedStatement(sql.getSql(), sql.getValues()));
+	}
+
+	/**
+	 * @return the {@link ExecutedStatement} records (SQL text + bind values) for the
+	 *         current thread, in execution order
+	 * @since 2.0
+	 */
+	public List<ExecutedStatement> getExecutedStatements() {
+		List<ExecutedStatement> list = executedStatements.get();
+		if (list == null) {
+			list = new ArrayList<>();
+			executedStatements.set(list);
+		}
+		return list;
 	}
 
 	public void close(ResultSet rs) {
@@ -207,6 +305,7 @@ public final class DBAccessManager implements LifecycleSupport {
 		synchronized (MANAGER) {
 			for (DBAccessManager dba : MANAGER.values()) {
 				dba.executedQuery.remove();
+				dba.executedStatements.remove();
 				dba.stmt.remove();
 				dba.con.remove();
 				dba.running.remove();

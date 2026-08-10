@@ -22,6 +22,7 @@ import org.tamacat.di.DI;
 import org.tamacat.di.DIContainer;
 import org.tamacat.sql.DBAccessManager;
 import org.tamacat.sql.JdbcConfig;
+import org.tamacat.sql.ResultSetHandler;
 
 public class DaoAdapter<T extends ORMappingSupport<T>> implements AutoCloseable {
 
@@ -121,6 +122,13 @@ public class DaoAdapter<T extends ORMappingSupport<T>> implements AutoCloseable 
 		return delegate.param(column, condition, values);
 	}
 
+	/**
+	 * @since 2.0
+	 */
+	public Param prepare(Column column, Conditions condition, String... values) {
+		return delegate.prepare(column, condition, values);
+	}
+
 	public Query<T> createQuery() {
 		return delegate.createQuery();
 	}
@@ -161,20 +169,58 @@ public class DaoAdapter<T extends ORMappingSupport<T>> implements AutoCloseable 
 		throw new RuntimeException(new NoSuchMethodException());
 	}
 
+	/**
+	 * Bind-path equivalent of {@link #getInsertSQL(ORMappingSupport)}. {@code DaoAdapter}
+	 * does not extend {@link Dao} (it holds a {@code delegate: Dao<T>} field instead), so
+	 * this extension point is added independently of {@link Dao#getInsertPreparedSql},
+	 * wrapping {@code DaoAdapter}'s own {@link #getInsertSQL(ORMappingSupport)} - the same
+	 * asymmetry the existing {@link #create(ORMappingSupport)} already has (SQL from
+	 * {@code DaoAdapter} itself, execution from {@code delegate}) (BR-17).
+	 * @since 2.0
+	 */
+	protected PreparedSql getInsertPreparedSql(T data) {
+		return PreparedSql.ofLiteral(getInsertSQL(data));
+	}
+
+	/**
+	 * Bind-path equivalent of {@link #getUpdateSQL(ORMappingSupport)}. See
+	 * {@link #getInsertPreparedSql(ORMappingSupport)}.
+	 * @since 2.0
+	 */
+	protected PreparedSql getUpdatePreparedSql(T data) {
+		return PreparedSql.ofLiteral(getUpdateSQL(data));
+	}
+
+	/**
+	 * Bind-path equivalent of {@link #getDeleteSQL(ORMappingSupport)}. See
+	 * {@link #getInsertPreparedSql(ORMappingSupport)}.
+	 * @since 2.0
+	 */
+	protected PreparedSql getDeletePreparedSql(T data) {
+		return PreparedSql.ofLiteral(getDeleteSQL(data));
+	}
+
 	public int create(T data) {
-		return delegate.executeUpdate(getInsertSQL(data));
+		return delegate.executeUpdate(getInsertPreparedSql(data));
 	}
 
 	public int update(T data) {
-		return delegate.executeUpdate(getUpdateSQL(data));
+		return delegate.executeUpdate(getUpdatePreparedSql(data));
 	}
 
 	public int delete(T data) {
-		return delegate.executeUpdate(getDeleteSQL(data));
+		return delegate.executeUpdate(getDeletePreparedSql(data));
 	}
 
 	protected ResultSet executeQuery(String sql) throws DaoException {
 		return delegate.executeQuery(sql);
+	}
+
+	/**
+	 * @since 2.0
+	 */
+	protected <R> R executeQuery(PreparedSql sql, ResultSetHandler<R> handler) throws DaoException {
+		return delegate.executeQuery(sql, handler);
 	}
 
 	protected int executeUpdate(String sql) throws DaoException {
@@ -182,6 +228,27 @@ public class DaoAdapter<T extends ORMappingSupport<T>> implements AutoCloseable 
 	}
 
 	protected int executeUpdate(String sql, int index, InputStream in) throws DaoException {
+		return delegate.executeUpdate(sql, index, in);
+	}
+
+	/**
+	 * Bind-path equivalent of {@link #executeUpdate(String)}. Forwards to
+	 * {@code delegate}, independently of {@link Dao#executeUpdate(PreparedSql)} since
+	 * {@code DaoAdapter} does not extend {@link Dao} (BR-17).
+	 * @since 2.0
+	 */
+	protected int executeUpdate(PreparedSql sql) throws DaoException {
+		return delegate.executeUpdate(sql);
+	}
+
+	/**
+	 * Bind-path equivalent of {@link #executeUpdate(String, int, InputStream)}, for BLOB
+	 * writes. Forwards to {@code delegate}. The override point for a BLOB-writing
+	 * subclass in this repository is here (all real DAOs extend {@code DaoAdapter}) -
+	 * see {@code MIGRATION.md}.
+	 * @since 2.0
+	 */
+	protected int executeUpdate(PreparedSql sql, int index, InputStream in) throws DaoException {
 		return delegate.executeUpdate(sql, index, in);
 	}
 
