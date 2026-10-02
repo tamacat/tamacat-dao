@@ -156,15 +156,18 @@ public class DaoAdapter<T extends ORMappingSupport<T>> implements AutoCloseable 
 	public void handleException(Throwable cause) throws DaoException {
 		delegate.handleException(cause);
 	}
-
+	
+	@Deprecated
 	protected String getInsertSQL(T data) {
 		throw new RuntimeException(new NoSuchMethodException());
 	}
 
+	@Deprecated
 	protected String getUpdateSQL(T data) {
 		throw new RuntimeException(new NoSuchMethodException());
 	}
 
+	@Deprecated
 	protected String getDeleteSQL(T data) {
 		throw new RuntimeException(new NoSuchMethodException());
 	}

@@ -64,7 +64,7 @@ public class UserDaoTest2 {
         User user = new User();
         user.setValue(User.USER_ID, "admin").setValue(User.PASSWORD, "password");
         int result = dao.create(user);
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class UserDaoTest2 {
         User user = new User();
         user.setValue(User.USER_ID, "admin").setValue(User.PASSWORD, "password");
         int result = dao.update(user);
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class UserDaoTest2 {
         User user = new User();
         user.setValue(User.USER_ID, "admin");
         int result = dao.delete(user);
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 }

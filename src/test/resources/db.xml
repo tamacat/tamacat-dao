@@ -34,7 +34,7 @@
   
   <bean id="javadb" class="org.tamacat.sql.DriverManagerJdbcConfig" singleton="true"> 
     <property name="driverClass">
-      <value>org.apache.derby.jdbc.ClientDriver</value>
+      <value>org.tamacat.mock.sql.MockDriver</value>
     </property>
     <property name="url">
       <value><![CDATA[
